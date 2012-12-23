@@ -137,11 +137,6 @@ $(function() {
         return false;
       });
 
-      $('#sendloc').click( function () {
-        navigator.geolocation.getCurrentPosition( function (e) {
-          chat.socket.emit('loc', {lat: e.coords.latitude, lng: e.coords.longitude });
-        });
-      });
       $('#photo').change( function (e) {
         // CANVAS RESIZING
         canvasResize(e.target.files[0], {
