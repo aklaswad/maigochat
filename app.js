@@ -67,7 +67,7 @@ var rooms = {};
 var randSource = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
 
 app.createRoom = function (roomid) {
-  var i, count = 0, room, log = [], users = {};
+  var i, count = 0, id = 0, room, log = [], users = {};
   if ( !roomid ) {
     do {
       roomid = '';
@@ -80,8 +80,8 @@ app.createRoom = function (roomid) {
     .of('/' + roomid)
     .on('connection', function (socket) {
       count++;
-      var uid = count;
-      var user = { name: 'user(' + count + ')', id: uid };
+      var uid = id++;
+      var user = { id: uid, name: 'user' + uid };
       users[uid] = user;
       var welcome = {
         count: count

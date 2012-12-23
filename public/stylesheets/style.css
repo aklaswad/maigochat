@@ -4,14 +4,13 @@ body, div {
 }
 
 body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
   min-height: 480px;
 }
 
 a {
   color: #00B7FF;
 }
-
 
 #map {
   width: 100%;

@@ -37,7 +37,7 @@ $(function() {
       }
     }
     , render: function () {
-      var html = '<a href="#" class="username" data-uid="' + this.id + '">' + this.name + '</a>';
+      var html = '<a href="#" class="username" data-uid="' + this.id + '">' + (this.name ? this.name : 'user' + this.id) + ( this.me ? ' (me)' : '' ) + '</a>';
       this.$el.empty().append( $(html) );
     }
     , remove: function () {
@@ -101,18 +101,15 @@ $(function() {
       });
 
       socket.on('welcome', function (msg) {
+        msg.users[ msg.you.id ].me = true;
         chat.users.init(msg.users);
-//        chat.users.add msg.you;
-
       });
 
       socket.on('join', function (msg) {
         chat.users.add(msg.user);
-        chat.log(msg.user.name + ' joined');
       });
 
       socket.on('leave', function (msg) {
-        chat.log(msg.user.name + ' leaved');
         chat.users.remove(msg.user);
       });
       socket.on('update', function(msg) {
