@@ -46,7 +46,6 @@ $(function() {
       ctx.drawImage(img.get(0), 0, 0);
       while ( canvas.width > to_width ) {
         canvas = halfCanvas(canvas);
-        console.log('size', canvas);
       }
       cb(canvas.toDataURL('image/jpeg'));
     }).attr('src', data);
@@ -99,6 +98,7 @@ $(function() {
       this.marker.setMap(null);
     }
     , follow: function () {
+      this.$el.addClass('following');
       this.following = true;
       this.updateLatLng();
     }
@@ -151,10 +151,10 @@ $(function() {
       });
 
       socket.on('msg push', function (msg) {
-        chat.log( msg.user.name + ': ' + msg.msg );
+        chat.log({ user: msg.user, el: $('<span class="message"/>').text(msg.text)});
       });
       socket.on('photo', function(msg) {
-        chat.log( $('<img width="256" />').attr('src', msg.data) );
+        chat.log({ user: msg.user, el: $('<img width="320" />').attr('src', msg.data) });
       });
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
@@ -175,22 +175,31 @@ $(function() {
         chat.users.update(msg.user);
       });
 
-      $('#posttext').click(function() {
+      $('#textform').submit(function () {
         var msg = $('#text').val();
+        if ( !msg || msg.length === 0 ) return false;
         socket.emit('talk', msg);
+        $('#text').val('').focus();
+        return false;
       });
 
       $('#rename').click(function () {
         var name = $('#name').val();
         socket.emit('rename', name);
+        return false;
       });
 
       $('.username').live('click',function () {
         chat.users.follow({ id: $(this).attr('data-uid') });
         return false;
       });
-
-      $('#photo').change( function (e) {
+      $('#config-toggle').click( function () {
+        $('#config').toggle();
+      });
+      $('#uploadphoto').click( function () {
+        $('#photo-input').click();
+      });
+      $('#photo-input').change( function (e) {
         var $input = $(this);
         canvasResize(e.target.files[0], {
           width: 1024,
@@ -204,6 +213,15 @@ $(function() {
             });
           }
         });
+        return false;
+      });
+
+      $('.tab').click( function () {
+        var target = $(this).attr('data-target');
+        $('.tab').removeClass('selected');
+        $(this).addClass('selected');
+        $('.tab-content').hide().filter('.' + target).show();
+        return false;
       });
 
       navigator.geolocation.watchPosition(function (e) {
@@ -211,7 +229,12 @@ $(function() {
       });
     }
     , log: function (msg) {
-      $('#log').prepend($('<li />').append($(msg)));
+      $('#log').prepend(
+        $('<li class="log-item "/>')
+          .append(
+            $('<span class="user-summary" />').text(msg.user.name)
+          ).append(msg.el)
+      );
     }
   };
 

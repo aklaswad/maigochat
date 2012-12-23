@@ -15,14 +15,18 @@ html
     meta(name="MobileOptimized", content="320")
   body
     #map
-    #you
-      input#name
-      button#rename rename
+    #info
+      #config-toggle config
+    #config
+      p Your name
+        input#name
+        button#rename rename
     ul#users
-    #input
+    form#textform
       input#text
-      input#photo(type="file", accept="image/*")
-      button#posttext post
+      button(type="submit") post
+      button#uploadphoto photo
+    input#photo-input(type="file", accept="image/*")
     ul#log
     script
       $(function () {
@@ -30,3 +34,5 @@ html
           socket: '#{socket}'
         });
       });
+  footer
+    a(href="/") backtotop

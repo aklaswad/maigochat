@@ -93,8 +93,8 @@ app.createRoom = function (roomid) {
 
       socket.on('talk', function (msg) {
         log.push({ user: user, msg: msg });
-        socket.emit('msg push', { user: user, msg: msg});
-        socket.broadcast.emit('msg push', { user: user, msg: msg});
+        socket.emit('msg push', { user: user, text: msg});
+        socket.broadcast.emit('msg push', { user: user, text: msg});
       });
       socket.on('photo', function (data) {
         socket.emit('photo', { user: user, data: data });
