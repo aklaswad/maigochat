@@ -1,8 +1,23 @@
+body, div {
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  min-height: 480px;
 }
 
 a {
   color: #00B7FF;
+}
+
+
+#map {
+  width: 100%;
+  height: 180px;
+}
+
+.following {
+  background-color: #cba;
 }
