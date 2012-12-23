@@ -1,4 +1,57 @@
 $(function() {
+  // very cheep canvas resize.
+  // Why? sometimes drawImage() makes images messed up.
+  var halfCanvas = function (canvas) {
+    var sw = canvas.width
+      , sh = canvas.height
+      , dw = Math.floor(sw / 2)
+      , dh = Math.floor(sh / 2)
+      , newcanvas = $('<canvas />').attr({
+          width: dw
+          , height:dh
+        }).get(0)
+      , x, y
+      , ctx = canvas.getContext('2d')
+      , newctx = newcanvas.getContext('2d')
+      , data = ctx.getImageData(0,0, sw, sh)
+      , newdata = newctx.getImageData(0,0,dw,dh)
+      ;
+    for (x = 0; x < dw; x++ ) {
+      for ( y = 0; y < dh; y++ ) {
+        var dbase = x * 4 + dw * y * 4;
+        for ( var i=0; i<3; i++) { // RGB
+          var xx = x * 2;
+          var yy = y * 2;
+          var v = Math.round((
+              data.data[ xx       * 4 + yy       * sw * 4 + i ]
+            + data.data[ (xx + 1) * 4 + yy       * sw * 4 + i ]
+            + data.data[ xx       * 4 + (yy + 1) * sw * 4 + i ]
+            + data.data[ (xx + 1) * 4 + (yy + 1) * sw * 4 + i ]
+          ) / 4);
+          newdata.data[ dbase + i ] = v;
+        }
+        newdata.data[ dbase + 3] = 255;
+      }
+    }
+    newctx.putImageData(newdata, 0, 0);
+    return newcanvas;
+  };
+  var resizeImage = function (data, to_width, cb) {
+    var img = $('<img />').bind('load', function () {
+      var w = img.get(0).width
+        , h = img.get(0).height
+        , canvas = $('<canvas />').attr({width: w, height: h}).get(0)
+        , ctx = canvas.getContext('2d')
+        ;
+      ctx.drawImage(img.get(0), 0, 0);
+      while ( canvas.width > to_width ) {
+        canvas = halfCanvas(canvas);
+        console.log('size', canvas);
+      }
+      cb(canvas.toDataURL('image/jpeg'));
+    }).attr('src', data);
+  };
+
   var latlng = new google.maps.LatLng(35.709984,139.810703);
   var opts = {
     zoom: 15,
@@ -101,7 +154,7 @@ $(function() {
         chat.log( msg.user.name + ': ' + msg.msg );
       });
       socket.on('photo', function(msg) {
-        chat.log( $('<img />').attr('src', msg.data) );
+        chat.log( $('<img width="256" />').attr('src', msg.data) );
       });
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
@@ -138,17 +191,19 @@ $(function() {
       });
 
       $('#photo').change( function (e) {
-        // CANVAS RESIZING
+        var $input = $(this);
         canvasResize(e.target.files[0], {
-          width: 200,
+          width: 1024,
           height: 0,
           crop: false,
-          quality: 70,
+          quality: 100,
           callback: function(data) {
-            chat.socket.emit('photo', data);
+            resizeImage(data,256,function (resized) {
+              chat.socket.emit('photo', resized);
+              $input.val('');
+            });
           }
         });
-        $(input).val('');
       });
 
       navigator.geolocation.watchPosition(function (e) {
