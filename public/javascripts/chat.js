@@ -26,6 +26,7 @@ $(function() {
       }
       $.extend(this, opts);
       if ( shouldUpdateLatLng ) this.updateLatLng();
+      this.marker.setTitle(this.name);
       this.render();
     }
     , updateLatLng: function () {
