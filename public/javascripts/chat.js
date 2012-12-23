@@ -29,6 +29,7 @@ $(function() {
       this.render();
     }
     , updateLatLng: function () {
+      if ( !this.lat || !this.lng ) return;
       var latlng = new google.maps.LatLng(this.lat, this.lng);
       this.marker.setPosition( latlng );
       if ( this.following ) {
@@ -114,7 +115,9 @@ $(function() {
         chat.log(msg.user.name + ' leaved');
         chat.users.remove(msg.user);
       });
-
+      socket.on('update', function(msg) {
+        chat.users.update(msg.user);
+      });
       socket.on('loc', function (msg) {
         chat.users.update(msg.user);
       });

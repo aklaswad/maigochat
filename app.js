@@ -98,6 +98,8 @@ app.createRoom = function (roomid) {
       });
       socket.on('rename', function (msg) {
         user.name = msg;
+        socket.emit('update', { user: user});
+        socket.broadcast.emit('update', { user: user });
       });
       // geo location
       socket.on('loc', function(msg) {
