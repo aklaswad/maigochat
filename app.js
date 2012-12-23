@@ -96,6 +96,10 @@ app.createRoom = function (roomid) {
         socket.emit('msg push', { user: user, msg: msg});
         socket.broadcast.emit('msg push', { user: user, msg: msg});
       });
+      socket.on('photo', function (data) {
+        socket.emit('photo', { user: user, data: data });
+        socket.broadcast.emit('photo', { user: user, data: data });
+      });
       socket.on('rename', function (msg) {
         user.name = msg;
         socket.emit('update', { user: user});

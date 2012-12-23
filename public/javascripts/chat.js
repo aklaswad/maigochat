@@ -100,7 +100,9 @@ $(function() {
       socket.on('msg push', function (msg) {
         chat.log( msg.user.name + ': ' + msg.msg );
       });
-
+      socket.on('photo', function(msg) {
+        chat.log( $('<img />').attr('src', msg.data) );
+      });
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
         chat.users.init(msg.users);
@@ -140,13 +142,26 @@ $(function() {
           chat.socket.emit('loc', {lat: e.coords.latitude, lng: e.coords.longitude });
         });
       });
+      $('#photo').change( function (e) {
+        // CANVAS RESIZING
+        canvasResize(e.target.files[0], {
+          width: 200,
+          height: 0,
+          crop: false,
+          quality: 70,
+          callback: function(data) {
+            chat.socket.emit('photo', data);
+          }
+        });
+        $(input).val('');
+      });
 
       navigator.geolocation.watchPosition(function (e) {
         chat.socket.emit('loc', {lat: e.coords.latitude, lng: e.coords.longitude });
       });
     }
     , log: function (msg) {
-      $('#log').prepend($('<li>' + msg + '</li>'));
+      $('#log').prepend($('<li />').append($(msg)));
     }
   };
 
