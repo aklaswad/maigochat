@@ -34,8 +34,7 @@ app.configure('production', function(){
 app.get('/', routes.index);
 
 app.get('/create', function (req, res) {
-  var roomid = app.createRoom();
-  res.redirect('/room/' + roomid);
+  res.redirect('/room/' + createRoomId());
 });
 
 app.get('/room/:id', function (req, res) {
@@ -99,6 +98,7 @@ var channel = io.on('connection', function (socket) {
 
   socket.on('message', function (data) {
     data.user = user;
+
     io.sockets.in(roomid).emit('message', data);
   });
 
