@@ -65,6 +65,9 @@ var io = require('socket.io').listen(app);
 var rooms = {};
 
 var randSource = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+io.on('connection', function (socket) {
+  console.log('hlllll');
+};
 
 app.createRoom = function (roomid) {
   var i, count = 0, id = 0, room, log = [], users = {};
@@ -91,26 +94,16 @@ app.createRoom = function (roomid) {
       socket.emit('welcome', welcome);
       socket.broadcast.emit('join', {user:user});
 
-      socket.on('talk', function (msg) {
-        log.push({ user: user, msg: msg });
-        socket.emit('msg push', { user: user, text: msg});
-        socket.broadcast.emit('msg push', { user: user, text: msg});
+      socket.on('message', function (data) {
+        data.user = user;
+        socket.emit('message', data);
+        socket.broadcast.emit('message', data);
       });
-      socket.on('photo', function (data) {
-        socket.emit('photo', { user: user, data: data });
-        socket.broadcast.emit('photo', { user: user, data: data });
-      });
-      socket.on('rename', function (msg) {
-        user.name = msg;
-        socket.emit('update', { user: user});
+
+      socket.on('update', function (msg) {
+        user = msg;
+        socket.emit('update', { user: user });
         socket.broadcast.emit('update', { user: user });
-      });
-      // geo location
-      socket.on('loc', function(msg) {
-        user.lat = msg.lat;
-        user.lng = msg.lng;
-        socket.emit('loc', { user: user });
-        socket.broadcast.emit('loc', { user: user });
       });
 
       socket.on('disconnect', function() {

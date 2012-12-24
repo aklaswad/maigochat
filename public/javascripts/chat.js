@@ -144,20 +144,23 @@ $(function() {
     init: function (opts) {
       this.users = UserCollection;
       var chat = this
-        , socket = this.socket = io.connect(opts.socket)
+        , socket = this.socket = io.connect(opts.socket + '---ll')
         ;
       socket.on('connect', function() {
         console.log('connected');
       });
 
-      socket.on('msg push', function (msg) {
-        chat.log({ user: msg.user, el: $('<span class="message"/>').text(msg.text)});
-      });
-      socket.on('photo', function(msg) {
-        chat.log({ user: msg.user, el: $('<img width="320" />').attr('src', msg.data) });
+      socket.on('message', function (msg) {
+        if ( msg.text ) {
+          chat.log({ user: msg.user, el: $('<span class="message" />').text(msg.text)});
+        }
+        if ( msg.photo ) {
+          chat.log({ user: msg.user, el: $('<img width="320" />').attr('src', msg.photo) });
+        }
       });
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
+        chat.me = msg.you;
         chat.users.init(msg.users);
       });
 
@@ -168,24 +171,24 @@ $(function() {
       socket.on('leave', function (msg) {
         chat.users.remove(msg.user);
       });
+
       socket.on('update', function(msg) {
-        chat.users.update(msg.user);
-      });
-      socket.on('loc', function (msg) {
         chat.users.update(msg.user);
       });
 
       $('#textform').submit(function () {
         var msg = $('#text').val();
         if ( !msg || msg.length === 0 ) return false;
-        socket.emit('talk', msg);
+        socket.emit('message',{ text: msg});
         $('#text').val('').focus();
         return false;
       });
 
       $('#rename').click(function () {
         var name = $('#name').val();
-        socket.emit('rename', name);
+        if ( !name || name.length === 0 ) return false;
+        chat.me.name = name;
+        socket.emit('update', chat.me);
         return false;
       });
 
@@ -208,7 +211,7 @@ $(function() {
           quality: 100,
           callback: function(data) {
             resizeImage(data,256,function (resized) {
-              chat.socket.emit('photo', resized);
+              chat.socket.emit('message', {'photo': resized});
               $input.val('');
             });
           }
@@ -225,7 +228,9 @@ $(function() {
       });
 
       navigator.geolocation.watchPosition(function (e) {
-        chat.socket.emit('loc', {lat: e.coords.latitude, lng: e.coords.longitude });
+        chat.me.lat = e.coords.latitude;
+        chat.me.lng = e.coords.longitude;
+        chat.socket.emit('update', chat.me);
       });
     }
     , log: function (msg) {
