@@ -90,7 +90,8 @@ $(function() {
       }
     }
     , render: function () {
-      var html = '<a href="#" class="username" data-uid="' + this.id + '">' + (this.name ? this.name : 'user' + this.id) + ( this.me ? ' (me)' : '' ) + '</a>';
+      var name = $('<div />').text(this.name).html();
+      var html = '<a href="#" class="username" data-uid="' + this.id + '">' + name + ( this.me ? ' (me)' : '' ) + '</a>';
       this.$el.empty().append( $(html) );
     }
     , remove: function () {
@@ -152,7 +153,8 @@ $(function() {
 
       socket.on('message', function (msg) {
         if ( msg.text ) {
-          var html = msg.text.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
+          var html = $('<div />').text(msg.text).html();
+          html = html.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
           chat.log({ user: msg.user, el: $('<span class="message" />').html(html)});
         }
         if ( msg.photo ) {
