@@ -144,7 +144,7 @@ $(function() {
     init: function (opts) {
       this.users = UserCollection;
       var chat = this
-        , socket = this.socket = io.connect(opts.socket + '---ll')
+        , socket = this.socket = io.connect(opts.socket + '?roomid=' + opts.roomid)
         ;
       socket.on('connect', function() {
         console.log('connected');

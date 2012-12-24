@@ -44,13 +44,13 @@ app.get('/room/:id', function (req, res) {
     res.redirect('/');
     return;
   }
-  if ( !rooms[roomid] ) {
-    roomid = app.createRoom(roomid);
+  if ( !ROOMS[roomid] ) {
+    roomid = createRoomId();
   }
   res.render('room', {
     title: 'room'
     , roomid: req.params.id
-    , socket: 'ws://10.0.1.102:3000/' + req.params.id
+    , socket: 'ws://10.0.1.102:3000/'
   });
 });
 
@@ -58,65 +58,63 @@ app.get('/room/:id', function (req, res) {
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
-
+// Socket IO Chat
+var ROOMS = {};
+var randSource = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+var createRoomId = function () {
+  var i, roomid;
+  do {
+    roomid = '';
+    for ( i=0;i<6;i++ ) {
+      roomid += randSource[ Math.floor(Math.random() * randSource.length )];
+    }
+  } while ( ROOMS[roomid] );
+  return roomid;
+};
 
 //socket.io
 var io = require('socket.io').listen(app);
-var rooms = {};
-
-var randSource = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
-io.on('connection', function (socket) {
-  console.log('hlllll');
-};
-
-app.createRoom = function (roomid) {
-  var i, count = 0, id = 0, room, log = [], users = {};
-  if ( !roomid ) {
-    do {
-      roomid = '';
-      for ( i=0;i<6;i++ ) {
-        roomid += randSource[ Math.floor(Math.random() * randSource.length )];
-      }
-    } while ( rooms[roomid] );
+var channel = io.on('connection', function (socket) {
+  var roomid = socket.handshake.query.roomid;
+  if ( !roomid ) { // Need more strict ?
+    socket.disconnect();
+    return;
   }
-  room = rooms[roomid] = io
-    .of('/' + roomid)
-    .on('connection', function (socket) {
-      count++;
-      var uid = id++;
-      var user = { id: uid, name: 'user' + uid };
-      users[uid] = user;
-      var welcome = {
-        count: count
-        , users: users
-        , you: user
-      };
-      socket.emit('welcome', welcome);
-      socket.broadcast.emit('join', {user:user});
+  socket.join(roomid);
+  var uid = socket.id;
+  var user = { id: uid, name: 'user', lat: 0.0, lng: 0.0 };
+  var room = ROOMS[roomid];
+  if ( !room ) {
+    ROOMS[roomid] = room = { users: {} };
+  }
+  var users = room.users;
+  room.users[uid] = user;
+  var welcome = {
+    users: room.users
+    , you: user
+  };
 
-      socket.on('message', function (data) {
-        data.user = user;
-        socket.emit('message', data);
-        socket.broadcast.emit('message', data);
-      });
+  socket.emit('welcome', welcome);
+  socket.broadcast.to(roomid).emit('join', {user:user});
 
-      socket.on('update', function (msg) {
-        user = msg;
-        socket.emit('update', { user: user });
-        socket.broadcast.emit('update', { user: user });
-      });
+  socket.on('message', function (data) {
+    data.user = user;
+    io.sockets.in(roomid).emit('message', data);
+  });
 
-      socket.on('disconnect', function() {
-        count--;
-        if ( !count ) {
-          console.log('remove ', roomid);
-          rooms[roomid] = null;
-          return;
-        }
-        delete users[uid];
-        socket.broadcast.emit('leave', { user: user });
-      });
-    })
-  ;
-  return roomid;
-};
+  socket.on('update', function (msg) {
+    user = users[user.id] = msg;
+    io.sockets.in(roomid).emit('update', { user: user });
+  });
+
+  socket.on('disconnect', function() {
+    delete users[uid];
+    socket.leave(roomid);
+    socket.broadcast.to(roomid).emit('leave', { user: user });
+    if (! users.length ) {
+      console.log('remove room', roomid);
+      delete ROOMS[roomid];
+    }
+  });
+});
+
