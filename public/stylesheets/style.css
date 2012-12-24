@@ -6,6 +6,7 @@ body, div, ul {
 body {
   font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
   min-height: 480px;
+  background-color: #f8f8f8;
 }
 
 a {
@@ -43,6 +44,15 @@ a:hover {
 }
 #config {
   display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 200%;
+  background: #eee;
+  border: 5px solid #ddd;
+  padding: 10px;
 }
 #config-toggle {
   position: fixed;

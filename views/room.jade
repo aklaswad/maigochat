@@ -18,9 +18,13 @@ html
     #info
       #config-toggle config
     #config
-      p Your name
-        input#name
-        button#rename rename
+      form#config-form
+        p
+          span Your name
+          input#name
+        p
+          input(type='submit') apply
+          button.cancel cancel
     ul#users
     form#textform
       input#text

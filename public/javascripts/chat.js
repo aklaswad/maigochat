@@ -187,21 +187,33 @@ $(function() {
         return false;
       });
 
-      $('#rename').click(function () {
-        var name = $('#name').val();
-        if ( !name || name.length === 0 ) return false;
-        chat.me.name = name;
-        socket.emit('update', chat.me);
-        return false;
-      });
-
       $('.username').live('click',function () {
         chat.users.follow({ id: $(this).attr('data-uid') });
         return false;
       });
+
       $('#config-toggle').click( function () {
-        $('#config').toggle();
+        $('body').css('overflow', 'hidden');
+        $('#config').show(200);
       });
+
+      $('#config .cancel').click( function () {
+        $('body').css('overflow', 'default');
+        $('#config').hide(200);
+        return false;
+      });
+
+      $('#config-form').submit( function () {
+        var name = $('#name').val();
+        if ( name && name.length !== 0 && name !== chat.me.name ) {
+          chat.me.name = name;
+          socket.emit('update', chat.me);
+        }
+        $('body').css('overflow', 'default');
+        $('#config').hide(200);
+        return false;
+      });
+
       $('#uploadphoto').click( function () {
         $('#photo-input').click();
       });
