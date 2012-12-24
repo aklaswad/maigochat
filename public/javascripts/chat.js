@@ -152,7 +152,8 @@ $(function() {
 
       socket.on('message', function (msg) {
         if ( msg.text ) {
-          chat.log({ user: msg.user, el: $('<span class="message" />').text(msg.text)});
+          var html = msg.text.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
+          chat.log({ user: msg.user, el: $('<span class="message" />').html(html)});
         }
         if ( msg.photo ) {
           chat.log({ user: msg.user, el: $('<img width="320" />').attr('src', msg.photo) });
