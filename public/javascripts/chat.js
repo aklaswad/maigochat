@@ -189,6 +189,7 @@ $(function() {
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
         chat.me = msg.you;
+        $('#name').val(msg.you.name);
         chat.users.init(msg.users);
       });
 
