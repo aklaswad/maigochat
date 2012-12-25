@@ -34,14 +34,33 @@ a:hover {
 }
 
 .user {
+  vertical-align: top;
+  background: #ddd;
+  height: 18px;
+  line-height: 14px;
+  padding: 2px 4px;
   display: inline-block;
-  margin: 3px;
+  margin: 8px 2px 2px 8px;
+  border-radius: 2px;
+}
+
+.username {
+  text-decoration: none;
 }
 
 .following {
   background-color: #cba;
 }
 
+#textform {
+  padding-left: 4px;
+}
+
+input#text {
+  height: 24px;
+  border-radius: 5px;
+  width: 140px;
+}
 .photo {
   width: 256px;
 }
@@ -69,12 +88,14 @@ a:hover {
   background-color: rgba(0,0,0,0.5);
   color: #fff;
   padding: 5px;
+  z-index: 100;
 }
 #config-close {
   cursor: pointer;
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 100;
 }
 
 #twitter-icon {
@@ -83,27 +104,33 @@ a:hover {
 }
 .user-summary {
   padding: 2px 2px;
-  background-color: #ace;
   margin: 0 5px;
+  font-size: 0.76em;
+  color: #999;
 }
 
 #log {
   min-height: 300px;
+  width: 320px;
 }
 
 .log-item {
   list-style: none;
-  border-bottom: 1px dotted #ccc;
+  margin: 8px 0;
+  padding: 4px;
 }
 
 .img-log {
   position: relative;
 }
+.img-log-img {
+  width: 312px;
+}
 .img-draw {
   display: block;
   position: absolute;
-  left: 4px;
-  bottom: 4px;
+  right: 8px;
+  bottom: 8px;
   width: 36px;
   height: 36px;
   z-index: 1;

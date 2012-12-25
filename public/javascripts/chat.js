@@ -183,7 +183,7 @@ $(function() {
         }
         if ( msg.photo ) {
           var $el = $('<div class="img-log "/>');
-          $('<img width="320" />').attr('src', msg.photo).appendTo($el);
+          $('<img class="img-log-img" />').attr('src', msg.photo).appendTo($el);
           $('<a href="#" class="img-draw"></a>').appendTo($el);
           chat.log({ user: msg.user, el: $el });
         }
@@ -335,7 +335,7 @@ $(function() {
       $('#log').prepend(
         $('<li class="log-item "/>')
           .append(
-            $('<span class="user-summary" />').text(msg.user.name)
+            $('<div class="user-summary" />').text(msg.user.name)
           ).append(msg.el)
       );
     }
