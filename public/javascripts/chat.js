@@ -36,7 +36,9 @@ $(function() {
     newctx.putImageData(newdata, 0, 0);
     return newcanvas;
   };
-  var resizeImage = function (data, to_width, cb) {
+
+  // Function takes dataurl and give resized dataurl to callback
+  var _resizeImage = function (data, to_width, cb, infocb) {
     var img = $('<img />').bind('load', function () {
       var w = img.get(0).width
         , h = img.get(0).height
@@ -47,8 +49,28 @@ $(function() {
       while ( canvas.width > to_width ) {
         canvas = halfCanvas(canvas);
       }
+      infocb('sending...');
       cb(canvas.toDataURL('image/jpeg'));
     }).attr('src', data);
+  };
+
+  // Function takes file and give resized dataurl to callback
+  var resizeImage = function ( file, size, cb, infocb) {
+    var intermediate = size;
+    while ( intermediate < 1024 ) {
+      intermediate *= 2;
+    }
+    infocb('loading image...');
+    canvasResize(file, {
+      width: intermediate,
+      height: 0,
+      crop: false,
+      quality: 100,
+      callback: function(data) {
+        infocb('compressing...');
+        _resizeImage(data, size, cb, infocb);
+      }
+    });
   };
 
   var latlng = new google.maps.LatLng(35.709984,139.810703);
@@ -220,18 +242,11 @@ $(function() {
       });
       $('#photo-input').change( function (e) {
         var $input = $(this);
-        canvasResize(e.target.files[0], {
-          width: 1024,
-          height: 0,
-          crop: false,
-          quality: 100,
-          callback: function(data) {
-            resizeImage(data,256,function (resized) {
-              chat.socket.emit('message', {'photo': resized});
-              $input.val('');
-            });
-          }
-        });
+        resizeImage( e.target.files[0], 320, function (resized) {
+          chat.socket.emit('message', {'photo': resized});
+          $input.val('');
+          chat.info('done');
+        }, function(info) { chat.info(info, 100000); } );
         return false;
       });
 
@@ -248,6 +263,15 @@ $(function() {
         chat.me.lng = e.coords.longitude;
         chat.socket.emit('update', chat.me);
       });
+    }
+    , info: function (msg, len) {
+      if ( this.timer ) {
+        clearInterval(this.timer);
+      }
+      $('#info').text(msg).show();
+      this.timer = setInterval( function () {
+        $('#info').text('').hide(200);
+      }, len || 2000);
     }
     , log: function (msg) {
       $('#log').prepend(
