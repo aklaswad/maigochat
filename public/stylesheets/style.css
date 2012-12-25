@@ -22,8 +22,15 @@ a:hover {
 }
 
 #info {
-  width: 100%;
+  position: fixed;
+  display: none;
+  top: 0;
   height: 20px;
+  color: #fff;
+  background: rgba(100,0,0,0.6);
+  z-index: 10000;
+  padding: 4px;
+  font-weight: bold;
 }
 
 .user {
