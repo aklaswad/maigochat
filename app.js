@@ -54,8 +54,7 @@ app.get('/room/:id', function (req, res) {
 });
 
 // Bootstrap
-app.listen(3000);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+var server = app.listen(3000);
 
 // Socket IO Chat
 var ROOMS = {};
@@ -72,7 +71,8 @@ var createRoomId = function () {
 };
 
 //socket.io
-var io = require('socket.io').listen(app);
+var io = require('socket.io').listen(server);
+var cookieParser = require('cookie');
 var channel = io.on('connection', function (socket) {
   var roomid = socket.handshake.query.roomid;
   if ( !roomid ) { // Need more strict ?
@@ -80,8 +80,13 @@ var channel = io.on('connection', function (socket) {
     return;
   }
   socket.join(roomid);
+
   var uid = socket.id;
-  var user = { id: uid, name: 'user', lat: 0.0, lng: 0.0 };
+  var cookie_str = socket.handshake.headers.cookie;
+  if ( cookie_str ) {
+    var cookie = cookieParser.parse(cookie_str);
+  }
+  var user = { id: uid, name: cookie.name || 'user', lat: 0.0, lng: 0.0 };
   var room = ROOMS[roomid];
   if ( !room ) {
     ROOMS[roomid] = room = { users: {} };

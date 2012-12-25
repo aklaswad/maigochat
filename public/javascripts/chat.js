@@ -207,6 +207,7 @@ $(function() {
         var name = $('#name').val();
         if ( name && name.length !== 0 && name !== chat.me.name ) {
           chat.me.name = name;
+          $.cookie('name', name, { expires: 7, path: '/' });
           socket.emit('update', chat.me);
         }
         $('body').css('overflow', 'default');
