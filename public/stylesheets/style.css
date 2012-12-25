@@ -53,6 +53,7 @@ a:hover {
   background: #eee;
   border: 5px solid #ddd;
   padding: 10px;
+  z-index: 1000;
 }
 #config-toggle {
   position: fixed;
