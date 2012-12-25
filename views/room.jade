@@ -35,20 +35,29 @@ html
     input#photo-input(type="file", accept="image/*")
     ul#log
     #draw
-      #draw-control
-        button.draw-cmd(data-draw-cmd="color #000") black
-        button.draw-cmd(data-draw-cmd="color #f00") red
-        button.draw-cmd(data-draw-cmd="color #0f0") green
-        button.draw-cmd(data-draw-cmd="color eraser") eraser
-        button.draw-cmd(data-draw-cmd="size 1") small
-        button.draw-cmd(data-draw-cmd="size 4") medium
-        button.draw-cmd(data-draw-cmd="size 10") large
-        button.draw-cmd(data-draw-cmd="clear") clear
-        button#draw-post post
-        button#draw-cancel cancel
       #draw-field
         canvas#canvas
         img#draw-bg
+      #draw-control
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #fff;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #888;")
+        span.draw-cmd.cmd-color.cmd-color-box.cmd-selected(style="background-color: #000;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #f00;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #f80;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #ff0;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #0f0;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #0ff;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #00f;")
+        span.draw-cmd.cmd-color.cmd-color-box(style="background-color: #f0f;")
+
+        span.draw-cmd.cmd-color.cmd-eraser(data-draw-cmd="color eraser")
+        span.draw-cmd.cmd-line1.cmd-size.cmd-selected(data-draw-cmd="size 2")
+        span.draw-cmd.cmd-line2.cmd-size(data-draw-cmd="size 5")
+        span.draw-cmd.cmd-line3.cmd-size(data-draw-cmd="size 10")
+        span.draw-cmd.cmd-line4.cmd-size(data-draw-cmd="size 24")
+        span.draw-cmd.cmd-clear(data-draw-cmd="clear")
+        span#draw-post post
+        span#draw-cancel cancel
     script
       $(function () {
         var client = new ChatClient({

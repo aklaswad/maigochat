@@ -182,7 +182,7 @@ $(function() {
         if ( msg.photo ) {
           var $el = $('<div class="img-log "/>');
           $('<img width="320" />').attr('src', msg.photo).appendTo($el);
-          $('<a href="#" class="img-draw">draw</a>').appendTo($el);
+          $('<a href="#" class="img-draw"></a>').appendTo($el);
           chat.log({ user: msg.user, el: $el });
         }
       });
@@ -268,7 +268,21 @@ $(function() {
 
       this.imageDraw = new ImageDraw({canvas: $('#canvas').get(0) });
       $('.draw-cmd').click(function () {
-        chat.imageDraw.command( $(this).attr('data-draw-cmd') );
+        var $this = $(this);
+        var cmd = $this.attr('data-draw-cmd');
+        if ( $this.is('.cmd-color') ) {
+          $('.cmd-color').removeClass('cmd-selected');
+          $this.addClass('cmd-selected');
+          if ( !cmd ) {
+            cmd = 'color ' + $this.css('background-color').replace(/ /g,'');
+console.log('cmd',cmd);
+          }
+        }
+        if ( $this.is('.cmd-size') ) {
+          $('.cmd-size').removeClass('cmd-selected');
+          $this.addClass('cmd-selected');
+        }
+        chat.imageDraw.command(cmd);
       });
       $('#draw-post').click(function () {
         chat.socket.emit('message', { photo: chat.imageDraw.toDataURL() });
@@ -324,7 +338,7 @@ $(function() {
     }
     , fixSize: function () {
       var w = $('#draw').width();
-      var h = $('#draw').height() - $('#draw-control').height();
+      var h = $('#draw').height() - $('#draw-control').height() - 4;
       var css = {};
       if ( w / h > this.width / this.height ) {
         css.width = h * this.width / this.height;
