@@ -229,14 +229,14 @@ $(function() {
         return false;
       });
 
-      $('#config-toggle').click( function () {
-        $('body').css('overflow', 'hidden');
+      $('#config-open').click( function () {
         $('#config').show(200);
+        $('#log').hide();
       });
 
       $('#config .cancel').click( function () {
-        $('body').css('overflow', 'default');
         $('#config').hide(200);
+        $('#log').show();
         return false;
       });
 
