@@ -282,7 +282,6 @@ $(function() {
           $this.addClass('cmd-selected');
           if ( !cmd ) {
             cmd = 'color ' + $this.css('background-color').replace(/ /g,'');
-console.log('cmd',cmd);
           }
         }
         if ( $this.is('.cmd-size') ) {
@@ -320,7 +319,6 @@ console.log('cmd',cmd);
       $('#twitter-invite').click( function () {
         var id = $('#twitter-id').val().replace(/\s/g, '');
         var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('d ' + id +  ' could you tell me the way to?') + '&url=' + encodeURIComponent(chat.roomurl);
-console.log('url', url);
         window.open(url);
       });
     }
