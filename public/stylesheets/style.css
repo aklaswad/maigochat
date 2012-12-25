@@ -70,6 +70,13 @@ a:hover {
   color: #fff;
   padding: 5px;
 }
+#config-close {
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 #twitter-icon {
   width: 48px;
   height: 48px;
@@ -157,14 +164,6 @@ a:hover {
 .cmd-clear { background: url('/images/dustbox.png'); }
 #draw-post, #draw-cancel {
   vertical-align: top;
-  display: inline-block;
-  top: 0;
-  height: 16px;
-  margin: 0 3px;
-  padding: 2px;
-  background-color: #842;
-  border: 2px solid #000;
-  color: #fff;
 }
 
 footer {
@@ -172,4 +171,38 @@ footer {
   text-align: right;
   border-top: 1px dotted #ddd;
   padding: 10px 5px;
+}
+
+.button {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  padding: 6px 8px;
+  background: -moz-linear-gradient( top, #eee 0%, #ccc );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#eee),
+    to(#ccc));
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  border: 1px solid #666;
+  text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
+}
+
+.button:hover {
+  background: -moz-linear-gradient( top, #afafaf 0%, #cdcdcd );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#afafaf),
+    to(#cdcdcd));
+}
+
+.button:active {
+  background: -moz-linear-gradient( top, #efefef 0%, #aeaeae );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#efefef),
+    to(#aeaeae));
 }

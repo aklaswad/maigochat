@@ -18,16 +18,20 @@ html
   body
     span#info
     #map
-    #config-open config
+    #config-open
+      img(src="/images/config.png")
+      span config
     #config
+      a#config-close
+        img(src="/images/close.png")
+        span close
       form#config-form
         h1 setting
         p
           span Your name
           input#name
         p
-          input(type='submit') apply
-          button.cancel cancel
+          input(type='submit', value='Change')
       #invite
         h1 invite
         p
@@ -40,8 +44,9 @@ html
     ul#users
     form#textform
       input#text
-      button(type="submit") post
-      button#uploadphoto photo
+      button.button(type="submit") post
+      a.button#uploadphoto
+        img(src="/images/camera.png")
     input#photo-input(type="file", accept="image/*")
     ul#log
     #draw
@@ -66,8 +71,8 @@ html
         span.draw-cmd.cmd-line3.cmd-size(data-draw-cmd="size 10")
         span.draw-cmd.cmd-line4.cmd-size(data-draw-cmd="size 24")
         span.draw-cmd.cmd-clear(data-draw-cmd="clear")
-        span#draw-post post
-        span#draw-cancel cancel
+        button.button#draw-cancel cancel
+        button.button#draw-post post
     script
       $(function () {
         var client = new ChatClient({

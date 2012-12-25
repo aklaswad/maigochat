@@ -234,7 +234,7 @@ $(function() {
         $('#log').hide();
       });
 
-      $('#config .cancel').click( function () {
+      $('#config-close').click( function () {
         $('#config').hide(200);
         $('#log').show();
         return false;
