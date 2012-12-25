@@ -34,6 +34,21 @@ html
       button#uploadphoto photo
     input#photo-input(type="file", accept="image/*")
     ul#log
+    #draw
+      #draw-control
+        button.draw-cmd(data-draw-cmd="color #000") black
+        button.draw-cmd(data-draw-cmd="color #f00") red
+        button.draw-cmd(data-draw-cmd="color #0f0") green
+        button.draw-cmd(data-draw-cmd="color eraser") eraser
+        button.draw-cmd(data-draw-cmd="size 1") small
+        button.draw-cmd(data-draw-cmd="size 4") medium
+        button.draw-cmd(data-draw-cmd="size 10") large
+        button.draw-cmd(data-draw-cmd="clear") clear
+        button#draw-post post
+        button#draw-cancel cancel
+      #draw-field
+        canvas#canvas
+        img#draw-bg
     script
       $(function () {
         var client = new ChatClient({
