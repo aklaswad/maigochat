@@ -117,7 +117,9 @@ var channel = io.on('connection', function (socket) {
     delete users[uid];
     socket.leave(roomid);
     socket.broadcast.to(roomid).emit('leave', { user: user });
-    if (! users.length ) {
+    var c = 0;
+    for ( var u in users ) { c++; }
+    if (!c ) {
       console.log('remove room', roomid);
       delete ROOMS[roomid];
     }
