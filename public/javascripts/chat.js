@@ -36,7 +36,9 @@ $(function() {
     newctx.putImageData(newdata, 0, 0);
     return newcanvas;
   };
-  var resizeImage = function (data, to_width, cb) {
+
+  // Function takes dataurl and give resized dataurl to callback
+  var _resizeImage = function (data, to_width, cb, infocb) {
     var img = $('<img />').bind('load', function () {
       var w = img.get(0).width
         , h = img.get(0).height
@@ -47,8 +49,28 @@ $(function() {
       while ( canvas.width > to_width ) {
         canvas = halfCanvas(canvas);
       }
+      infocb('sending...');
       cb(canvas.toDataURL('image/jpeg'));
     }).attr('src', data);
+  };
+
+  // Function takes file and give resized dataurl to callback
+  var resizeImage = function ( file, size, cb, infocb) {
+    var intermediate = size;
+    while ( intermediate < 1024 ) {
+      intermediate *= 2;
+    }
+    infocb('loading image...');
+    canvasResize(file, {
+      width: intermediate,
+      height: 0,
+      crop: false,
+      quality: 100,
+      callback: function(data) {
+        infocb('compressing...');
+        _resizeImage(data, size, cb, infocb);
+      }
+    });
   };
 
   var latlng = new google.maps.LatLng(35.709984,139.810703);
@@ -158,7 +180,10 @@ $(function() {
           chat.log({ user: msg.user, el: $('<span class="message" />').html(html)});
         }
         if ( msg.photo ) {
-          chat.log({ user: msg.user, el: $('<img width="320" />').attr('src', msg.photo) });
+          var $el = $('<div class="img-log "/>');
+          $('<img width="320" />').attr('src', msg.photo).appendTo($el);
+          $('<a href="#" class="img-draw"></a>').appendTo($el);
+          chat.log({ user: msg.user, el: $el });
         }
       });
       socket.on('welcome', function (msg) {
@@ -220,34 +245,61 @@ $(function() {
       });
       $('#photo-input').change( function (e) {
         var $input = $(this);
-        canvasResize(e.target.files[0], {
-          width: 1024,
-          height: 0,
-          crop: false,
-          quality: 100,
-          callback: function(data) {
-            resizeImage(data,256,function (resized) {
-              chat.socket.emit('message', {'photo': resized});
-              $input.val('');
-            });
-          }
-        });
+        resizeImage( e.target.files[0], 320, function (resized) {
+          chat.socket.emit('message', {'photo': resized});
+          $input.val('');
+          chat.info('done');
+        }, function(info) { chat.info(info, 100000); } );
         return false;
       });
-
-      $('.tab').click( function () {
-        var target = $(this).attr('data-target');
-        $('.tab').removeClass('selected');
-        $(this).addClass('selected');
-        $('.tab-content').hide().filter('.' + target).show();
-        return false;
+      $('.img-draw').live('click', function () {
+        var img = $(this).parent('.img-log').find('img').get(0);
+        chat.draw(img);
       });
-
+      $(window).bind('resize', function () {
+        if ( !$('#draw:visible').length) return;
+        chat.imageDraw.fixSize();
+      });
       navigator.geolocation.watchPosition(function (e) {
         chat.me.lat = e.coords.latitude;
         chat.me.lng = e.coords.longitude;
         chat.socket.emit('update', chat.me);
       });
+
+      this.imageDraw = new ImageDraw({canvas: $('#canvas').get(0) });
+      $('.draw-cmd').click(function () {
+        var $this = $(this);
+        var cmd = $this.attr('data-draw-cmd');
+        if ( $this.is('.cmd-color') ) {
+          $('.cmd-color').removeClass('cmd-selected');
+          $this.addClass('cmd-selected');
+          if ( !cmd ) {
+            cmd = 'color ' + $this.css('background-color').replace(/ /g,'');
+console.log('cmd',cmd);
+          }
+        }
+        if ( $this.is('.cmd-size') ) {
+          $('.cmd-size').removeClass('cmd-selected');
+          $this.addClass('cmd-selected');
+        }
+        chat.imageDraw.command(cmd);
+      });
+      $('#draw-post').click(function () {
+        chat.socket.emit('message', { photo: chat.imageDraw.toDataURL() });
+        $('#draw').hide();
+      });
+      $('#draw-cancel').click(function () {
+        $('#draw').hide();
+      });
+    }
+    , info: function (msg, len) {
+      if ( this.timer ) {
+        clearInterval(this.timer);
+      }
+      $('#info').text(msg).show();
+      this.timer = setInterval( function () {
+        $('#info').text('').hide(200);
+      }, len || 2000);
     }
     , log: function (msg) {
       $('#log').prepend(
@@ -257,8 +309,140 @@ $(function() {
           ).append(msg.el)
       );
     }
+    , draw: function(img) {
+      $('#draw').show();
+      var imageDraw = this.imageDraw;
+      // Hack to get original image size
+      var tmp = $('<img />').one('load', function () {
+        var w = tmp.get(0).width, h = tmp.get(0).height;
+        var bg = $('#draw-bg').one('load', function () {
+          imageDraw.setBackground(bg.get(0), w, h);
+          imageDraw.fixSize();
+        }).attr('src', img.src);
+      }).attr('src', img.src);
+    }
   };
 
+
+  var ImageDraw = function (opts) {
+    return this.init(opts);
+  };
+
+  ImageDraw.prototype = {
+    init: function (opts) {
+      this.canvas = opts.canvas;
+      this.ctx = this.canvas.getContext('2d');
+      this.ctx.lineCap = 'round';
+      this.ctx.lineJoin = 'round';
+      this.bindHandler();
+    }
+    , fixSize: function () {
+      var w = $('#draw').width();
+      var h = $('#draw').height() - $('#draw-control').height() - 4;
+      var css = {};
+      if ( w / h > this.width / this.height ) {
+        css.width = h * this.width / this.height;
+        css.height = h;
+      }
+      else {
+        css.width = w;
+        css.height = w * this.height / this.width;
+      }
+      $('#canvas').css(css);
+      $('#draw-bg').css(css);
+    }
+    , bindHandler: function () {
+      var $canvas = $(this.canvas);
+      var draw = this;
+      $canvas.bind('touchstart mousedown', function (e) {
+        draw.touchstart(e); return false;
+      })
+      .bind('touchmove mousemove', function (e) {
+        draw.touchmove(e); return false;
+      })
+      .bind('touchend mouseup', function (e) {
+        draw.touchend(e); return false;
+      });
+    }
+    , __pos: function (e) {
+      var x = e.offsetX || e.originalEvent.pageX - $(this.canvas).offset().left,
+          y = e.offsetY || e.originalEvent.pageY - $(this.canvas).offset().top;
+      return {
+        x: x * this.canvas.width/$(this.canvas).width() ,
+        y: y * this.canvas.height/$(this.canvas).height()
+      };
+    }
+    , touchstart: function (e) {
+      var pos = this.last = this.__pos(e);
+      this.ctx.beginPath();
+      this.ctx.arc(
+        pos.x,
+        pos.y,
+        this.ctx.lineWidth / 2.0,
+        0,
+        Math.PI*2,
+        false
+      );
+      this.ctx.fill();
+      this.ctx.closePath();
+      this.ctx.beginPath();
+      this.ctx.moveTo(pos.x);
+      this.drawing = true;
+      this.touchmove(e);
+    }
+    , touchmove: function (e) {
+      if ( !this.drawing ) return;
+      var pos = this.__pos(e);
+      this.ctx.lineTo(pos.x,pos.y);
+      this.ctx.stroke();
+      this.last = pos;
+    }
+    , touchend: function (e) {
+      this.drawing = false;
+      this.ctx.closePath();
+    }
+    , setBackground: function(img,w,h) {
+      this.bg = img;
+      this.width = w;
+      this.height = h;
+      this.canvas.width = img.width;
+      this.canvas.height = img.height;
+    }
+    , command: function (str) {
+      var args = str.split(/\s+/);
+      var command = args.shift();
+      this[command].apply(this, args);
+    }
+    , clear: function () {
+      this.ctx.clearRect(0,0,this.canvas.width, this.canvas.height);
+    }
+    , color: function (color) {
+      if ( color === 'eraser' ) {
+        this.ctx.globalCompositeOperation = 'destination-out';
+      }
+      else {
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.fillStyle = this.ctx.strokeStyle = color;
+      }
+    }
+    , size: function (size) {
+      this.ctx.lineWidth = size;
+    }
+    , toDataURL: function () {
+      var master = $('<canvas />').attr({
+        width: this.width,
+        height: this.height
+      }).get(0);
+      var ctx = master.getContext('2d');
+      ctx.drawImage(this.bg, 0,0);
+      ctx.drawImage(
+        this.canvas,
+        0, 0, this.canvas.width, this.canvas.height,
+        0, 0, this.width,        this.height
+      );
+      return master.toDataURL('image/jpen');
+    }
+  };
 
   window.ChatClient = ChatClient;
 });

@@ -83,10 +83,12 @@ var channel = io.on('connection', function (socket) {
 
   var uid = socket.id;
   var cookie_str = socket.handshake.headers.cookie;
+  var name = 'anon';
   if ( cookie_str ) {
     var cookie = cookieParser.parse(cookie_str);
+    if ( cookie.name ) name = cookie.name;
   }
-  var user = { id: uid, name: cookie.name || 'user', lat: 0.0, lng: 0.0 };
+  var user = { id: uid, name: name, lat: 0.0, lng: 0.0 };
   var room = ROOMS[roomid];
   if ( !room ) {
     ROOMS[roomid] = room = { users: {} };

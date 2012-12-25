@@ -78,3 +78,80 @@ a:hover {
   border-bottom: 1px dotted #ccc;
 }
 
+.img-log {
+  position: relative;
+}
+.img-draw {
+  display: block;
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  width: 36px;
+  height: 36px;
+  z-index: 1;
+  background: url('/images/pencil.png');
+}
+
+#draw {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none;
+  background-color: #000;
+  z-index: 1000;
+}
+
+#draw-field {
+  position: relative;
+  width: 100%;
+}
+#draw-control {
+  position: absolute;
+  bottom: 0;
+  padding: 4px;
+  box-sizing: border-box;
+}
+#canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  z-index: 1002;
+  width: 100%;
+}
+#draw-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  z-index: 1001;
+  width: 100%;
+}
+.draw-cmd.cmd-selected {
+  border: 2px solid #fff;
+}
+.draw-cmd {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #000;
+}
+.cmd-eraser { background: url('/images/eraser.png'); }
+.cmd-line1 { background: url('/images/line1.png'); }
+.cmd-line2 { background: url('/images/line2.png'); }
+.cmd-line3 { background: url('/images/line3.png'); }
+.cmd-line4 { background: url('/images/line4.png'); }
+.cmd-clear { background: url('/images/dustbox.png'); }
+#draw-post, #draw-cancel {
+  vertical-align: top;
+  display: inline-block;
+  top: 0;
+  height: 16px;
+  margin: 0 3px;
+  padding: 2px;
+  background-color: #842;
+  border: 2px solid #000;
+  color: #fff;
+}
