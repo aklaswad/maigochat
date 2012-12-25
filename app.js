@@ -43,13 +43,12 @@ app.get('/room/:id', function (req, res) {
     res.redirect('/');
     return;
   }
-  if ( !ROOMS[roomid] ) {
-    roomid = createRoomId();
-  }
+
   res.render('room', {
     title: 'room'
     , roomid: req.params.id
     , socket: 'ws://10.0.1.102:3000/'
+    , roomurl: 'http://10.0.1.102:3000/room/' + roomid
   });
 });
 

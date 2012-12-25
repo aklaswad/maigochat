@@ -63,7 +63,10 @@ a:hover {
   color: #fff;
   padding: 5px;
 }
-
+#twitter-icon {
+  width: 48px;
+  height: 48px;
+}
 .user-summary {
   padding: 2px 2px;
   background-color: #ace;

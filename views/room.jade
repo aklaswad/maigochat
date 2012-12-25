@@ -21,12 +21,20 @@ html
     #config-toggle config
     #config
       form#config-form
+        h1 setting
         p
           span Your name
           input#name
         p
           input(type='submit') apply
           button.cancel cancel
+      #invite
+        h1 invite
+        p
+          span twitter ID
+          img#twitter-icon
+          input#twitter-id
+          button#twitter-invite invite
     ul#users
     form#textform
       input#text
@@ -62,6 +70,7 @@ html
       $(function () {
         var client = new ChatClient({
           roomid: '#{roomid}'
+          , roomurl: '#{roomurl}'
           , socket: '#{socket}'
         });
       });

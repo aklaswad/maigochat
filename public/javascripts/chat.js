@@ -166,6 +166,8 @@ $(function() {
   ChatClient.prototype = {
     init: function (opts) {
       this.users = UserCollection;
+      this.roomurl = opts.roomurl;
+      this.roomid = opts.roomid;
       var chat = this
         , socket = this.socket = io.connect(opts.socket + '?roomid=' + opts.roomid)
         ;
@@ -291,6 +293,31 @@ console.log('cmd',cmd);
       });
       $('#draw-cancel').click(function () {
         $('#draw').hide();
+      });
+
+      // ------------ Invite
+      var twitterIconInterval;
+      $('#twitter-id').keyup( function () {
+        if ( twitterIconInterval ) {
+          clearInterval( twitterIconInterval );
+        }
+        var id = $(this).val().replace(/\s/g, '');
+        if ( id.length === 0 ) {
+          $('#twitter-icon').attr('src','about:blank');
+          return;
+        }
+        var url = 'http://api.twitter.com/1/users/profile_image?size=normal&screen_name=' + id;
+        twitterIconInterval = setInterval(function () {
+          $('#twitter-icon').attr('src',url);
+          clearInterval( twitterIconInterval );
+          twitterIconInterval = null;
+        }, 500);
+      });
+      $('#twitter-invite').click( function () {
+        var id = $('#twitter-id').val().replace(/\s/g, '');
+        var url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent('d ' + id +  ' could you tell me the way to?') + '&url=' + encodeURIComponent(chat.roomurl);
+console.log('url', url);
+        window.open(url);
       });
     }
     , info: function (msg, len) {
