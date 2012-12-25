@@ -193,6 +193,15 @@ $(function() {
         chat.me = msg.you;
         $('#name').val(msg.you.name);
         chat.users.init(msg.users);
+        setInterval( function () {
+          navigator.geolocation.getCurrentPosition(function (e) {
+            chat.me.lat = e.coords.latitude;
+            chat.me.lng = e.coords.longitude;
+            chat.socket.emit('update', chat.me);
+          }, function () {
+
+          });
+        }, 10000);
       });
 
       socket.on('join', function (msg) {
@@ -262,11 +271,6 @@ $(function() {
       $(window).bind('resize', function () {
         if ( !$('#draw:visible').length) return;
         chat.imageDraw.fixSize();
-      });
-      navigator.geolocation.watchPosition(function (e) {
-        chat.me.lat = e.coords.latitude;
-        chat.me.lng = e.coords.longitude;
-        chat.socket.emit('update', chat.me);
       });
 
       this.imageDraw = new ImageDraw({canvas: $('#canvas').get(0) });
