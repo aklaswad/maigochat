@@ -209,7 +209,7 @@ $(function() {
         var msg = $('#text').val();
         if ( !msg || msg.length === 0 ) return false;
         socket.emit('message',{ text: msg});
-        $('#text').val('').focus();
+        $('#text').val('');
         return false;
       });
 
