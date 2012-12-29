@@ -94,12 +94,13 @@ var channel = io.on('connection', function (socket) {
   var user = { id: uid, name: name, lat: 0.0, lng: 0.0 };
   var room = ROOMS[roomid];
   if ( !room ) {
-    ROOMS[roomid] = room = { users: {} };
+    ROOMS[roomid] = room = { users: {}, logs: [] };
   }
   var users = room.users;
   room.users[uid] = user;
   var welcome = {
     users: room.users
+    , logs: room.logs
     , you: user
   };
 
@@ -110,6 +111,8 @@ var channel = io.on('connection', function (socket) {
     data.user = user;
     data.date = moment().utc().format("LLL");
     io.sockets.in(roomid).emit('message', data);
+    room.logs.push(data);
+    if ( room.logs.length > 50 ) room.logs.shift();
   });
 
   socket.on('update', function (msg) {

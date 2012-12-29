@@ -190,7 +190,7 @@ $(function() {
         console.log('connected');
       });
 
-      socket.on('message', function (msg) {
+      var handleMessage = function (msg) {
         if ( msg.text ) {
           var html = escape(msg.text);
           html = html.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
@@ -202,12 +202,16 @@ $(function() {
           $('<a href="#" class="img-draw"></a>').appendTo($el);
           chat.log({ user: msg.user, date: msg.date,  el: $el });
         }
-      });
+      };
+      socket.on('message', handleMessage);
       socket.on('welcome', function (msg) {
         msg.users[ msg.you.id ].me = true;
         chat.me = msg.you;
         $('#name').val(msg.you.name);
         chat.users.init(msg.users);
+        for ( var i=0; i<msg.logs.length; i++ ) {
+            handleMessage( msg.logs[i] );
+        }
         setInterval( function () {
           navigator.geolocation.getCurrentPosition(function (e) {
             chat.me.lat = e.coords.latitude;
