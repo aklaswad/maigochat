@@ -5,8 +5,10 @@
 
 var express = require('express')
   , routes = require('./routes')
+  , fs     = require('fs')
   ;
 var app = module.exports = express.createServer();
+var conf = JSON.parse(fs.readFileSync('./config.json'));
 
 // Configuration
 
@@ -47,13 +49,13 @@ app.get('/room/:id', function (req, res) {
   res.render('room', {
     title: 'room'
     , roomid: req.params.id
-    , socket: 'ws://10.0.1.102:3000/'
-    , roomurl: 'http://10.0.1.102:3000/room/' + roomid
+    , socket: 'ws://' + conf.iohost
+    , roomurl: 'http://' + conf.host + '/room/' + roomid
   });
 });
 
 // Bootstrap
-var server = app.listen(3000);
+var server = app.listen(conf.listen);
 
 // Socket IO Chat
 var ROOMS = {};
@@ -70,7 +72,7 @@ var createRoomId = function () {
 };
 
 //socket.io
-var io = require('socket.io').listen(server);
+var io = require('socket.io').listen(conf.ioport);
 var cookieParser = require('cookie');
 var channel = io.on('connection', function (socket) {
   var roomid = socket.handshake.query.roomid;
