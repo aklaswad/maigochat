@@ -1,4 +1,19 @@
 $(function() {
+  // Utility
+  function escape (str) {
+    return $('<div />').text(str).html();
+  }
+  $.fn.updateMoment = function () {
+    $(this).each( function () {
+      var date = $(this).data('moment');
+      $(this).text( date.fromNow() );
+    });
+    return this;
+  };
+  setInterval( function () {
+    $('.moment').updateMoment();
+  }, 30000);
+
   // very cheep canvas resize.
   // Why? sometimes drawImage() makes images messed up.
   var halfCanvas = function (canvas) {
@@ -112,7 +127,7 @@ $(function() {
       }
     }
     , render: function () {
-      var name = $('<div />').text(this.name).html();
+      var name = escape(this.name);
       var html = '<a href="#" class="username" data-uid="' + this.id + '">' + name + ( this.me ? ' (me)' : '' ) + '</a>';
       this.$el.empty().append( $(html) );
     }
@@ -177,7 +192,7 @@ $(function() {
 
       socket.on('message', function (msg) {
         if ( msg.text ) {
-          var html = $('<div />').text(msg.text).html();
+          var html = escape(msg.text);
           html = html.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
           chat.log({ user: msg.user, el: $('<span class="message" />').html(html)});
         }
@@ -336,7 +351,16 @@ $(function() {
       $('#log').prepend(
         $('<li class="log-item "/>')
           .append(
-            $('<div class="user-summary" />').text(msg.user.name)
+            $('<div class="user-summary" />')
+              .append(
+                $('<span />').text(msg.user.name)
+              )
+              .append(
+                $('<span />')
+                  .data( 'moment', msg.date ? moment(msg.date) : moment() )
+                  .addClass('moment')
+                  .updateMoment()
+              )
           ).append(msg.el)
       );
     }

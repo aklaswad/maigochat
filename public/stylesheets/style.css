@@ -33,6 +33,11 @@ a:hover {
   font-weight: bold;
 }
 
+.moment {
+  color: #999;
+  padding: 10px;
+}
+
 #users {
   background: url('/images/people.png') 4px center no-repeat;
   padding-left: 30px;
