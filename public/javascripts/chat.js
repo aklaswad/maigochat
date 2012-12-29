@@ -249,6 +249,7 @@ $(function() {
         }
         $('body').css('overflow', 'default');
         $('#config').hide(200);
+        $('#log').show();
         return false;
       });
 
