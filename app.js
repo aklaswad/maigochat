@@ -96,6 +96,10 @@ var channel = io.on('connection', function (socket) {
   if ( !room ) {
     ROOMS[roomid] = room = { users: {}, logs: [] };
   }
+  if ( room.expireTimer ) {
+    console.log('Abort to remove room: ', roomid);
+    clearTimeout(room.expireTimer);
+  }
   var users = room.users;
   room.users[uid] = user;
   var welcome = {
@@ -127,8 +131,11 @@ var channel = io.on('connection', function (socket) {
     var c = 0;
     for ( var u in users ) { c++; }
     if (!c ) {
-      console.log('remove room', roomid);
-      delete ROOMS[roomid];
+      console.log('Scheduled to remove room after 6 hours: ', roomid);
+      room.expireTimer = setTimeout( function () {
+        console.log('Removed room: ', roomid);
+        delete ROOMS[roomid];
+      }, 1000 * 60 * 60 * 6);
     }
   });
 });
