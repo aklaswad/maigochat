@@ -33,23 +33,61 @@ a:hover {
   font-weight: bold;
 }
 
+#users {
+  background: url('/images/people.png') 4px center no-repeat;
+  padding-left: 30px;
+}
+
 .user {
   vertical-align: top;
-  background: #ddd;
   height: 18px;
   line-height: 14px;
-  padding: 2px 4px;
   display: inline-block;
-  margin: 8px 2px 2px 8px;
-  border-radius: 2px;
+  margin: 8px 2px 2px 2px;
 }
 
 .username {
-  text-decoration: none;
+
+}
+.username {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  padding: 2px 4px;
+  background: -moz-linear-gradient( top, #efe 0%, #ccd );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#efe),
+    to(#ccd));
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  border-radius: 6px;
+  border: 1px solid #666;
+  text-shadow: 0px 1px 0px rgba(255,255,255,0.7);
 }
 
-.following {
-  background-color: #cba;
+.username:hover {
+  background: -moz-linear-gradient( top, #afafaf 0%, #cdcdcd );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#afafaf),
+    to(#cdcdcd));
+}
+
+.following .username {
+  background: -moz-linear-gradient( top, #ecc 0%, #caa );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#ecc),
+    to(#caa));
+}
+.following .username:hover {
+  background: -moz-linear-gradient( top, #fcc 0%, #edd );
+  background: -webkit-gradient(
+    linear, left top, left bottom,
+    from(#fcc),
+    to(#edd));
 }
 
 #textform {
