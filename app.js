@@ -49,6 +49,7 @@ app.get('/room/:id', function (req, res) {
   res.render('room', {
     title: 'room'
     , roomid: req.params.id
+    , iohost: conf.iohost
     , socket: 'ws://' + conf.iohost
     , roomurl: 'http://' + conf.host + '/room/' + roomid
   });
