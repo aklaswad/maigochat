@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
   , fs     = require('fs')
+  , moment = require('moment');
   ;
 var app = module.exports = express.createServer();
 var conf = JSON.parse(fs.readFileSync('./config.json'));
@@ -107,7 +108,7 @@ var channel = io.on('connection', function (socket) {
 
   socket.on('message', function (data) {
     data.user = user;
-
+    data.date = moment().utc().format("LLL");
     io.sockets.in(roomid).emit('message', data);
   });
 

@@ -194,13 +194,13 @@ $(function() {
         if ( msg.text ) {
           var html = escape(msg.text);
           html = html.replace(/(https?:\/\/[\S]+)/g, "<a href='$1'>$1</a>");
-          chat.log({ user: msg.user, el: $('<span class="message" />').html(html)});
+          chat.log({ user: msg.user, date: msg.date, el: $('<span class="message" />').html(html)});
         }
         if ( msg.photo ) {
           var $el = $('<div class="img-log "/>');
           $('<img class="img-log-img" />').attr('src', msg.photo).appendTo($el);
           $('<a href="#" class="img-draw"></a>').appendTo($el);
-          chat.log({ user: msg.user, el: $el });
+          chat.log({ user: msg.user, date: msg.date,  el: $el });
         }
       });
       socket.on('welcome', function (msg) {
@@ -357,7 +357,7 @@ $(function() {
               )
               .append(
                 $('<span />')
-                  .data( 'moment', msg.date ? moment(msg.date) : moment() )
+                  .data( 'moment', moment.utc(msg.date) )
                   .addClass('moment')
                   .updateMoment()
               )
