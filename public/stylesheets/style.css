@@ -169,23 +169,15 @@ input#text {
 .img-log-img {
   width: 312px;
 }
-.img-draw, #map-draw {
+.img-draw {
   display: block;
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
   width: 36px;
   height: 36px;
   z-index: 1;
   background: url('/images/pencil.png');
-}
-
-#map-draw {
-  position: absolute;
-  left: 4px;
-  top: 4px;
-}
-.img-draw {
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
 }
 
 #draw {
