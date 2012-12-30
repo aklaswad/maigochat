@@ -350,6 +350,17 @@ $(function() {
         var img = $(this).parent('.img-log').find('img').get(0);
         chat.draw(img);
       });
+
+      $('#map-draw').click(function () {
+        var url = 'http://maps.googleapis.com/maps/api/staticmap?'
+          + 'center=' + Map.center.lat() + ',' + Map.center.lng()
+          + '&zoom=' + Map.zoom
+          + '&size=310x310&sensor=false';
+        $('<img />').one('load', function () {
+          chat.draw($(this).get(0));
+        }).attr('crossorigin', 'Anonymous').attr('src', url);
+      });
+
       $(window).bind('resize', function () {
         if ( !$('#draw:visible').length) return;
         chat.imageDraw.fixSize();
@@ -436,6 +447,12 @@ $(function() {
       // Hack to get original image size
       var tmp = $('<img />').one('load', function () {
         var w = tmp.get(0).width, h = tmp.get(0).height;
+        if ( $(img).prop('crossorigin') ) {
+          $('#draw-bg').prop('crossorigin', $(img).attr('crossorigin'));
+        }
+        else {
+          $('#draw-bg').removeProp('crossorigin');
+        }
         var bg = $('#draw-bg').one('load', function () {
           imageDraw.setBackground(bg.get(0), w, h);
           imageDraw.fixSize();
