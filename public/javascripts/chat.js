@@ -88,6 +88,61 @@ $(function() {
     });
   };
 
+  var generateMarkerIcon = function (opts) {
+    var label = opts.label;
+    var cvs = $('<canvas />').get(0);
+    var ctx = cvs.getContext('2d');
+    var font = "bold 13.5px 'Lucida Grande', Helvetica, Arial, sans-serif";
+    var leg_height = 14;
+    var leg_width = 8;
+    var padding = 4;
+    var radius = 6;
+
+    ctx.font = font;
+    var content_size = ctx.measureText(label);
+    content_size.height = 15;
+    cvs.width = content_size.width + padding * 2;
+    cvs.height = content_size.height + padding * 2 + leg_height;
+    ctx.clearRect(0,0, cvs.width, cvs.height);
+
+    // draw balloon
+    var x0 = 0
+      , x1 = radius
+      , x2 = cvs.width - radius
+      , x3 = cvs.width
+      , y0 = 0
+      , y1 = radius
+      , y2 = cvs.height - ( leg_height + radius )
+      , y3 = cvs.height - leg_height;
+    ctx.beginPath();
+    ctx.moveTo( cvs.width / 2, cvs.height );
+    ctx.lineTo( cvs.width / 2 - leg_width / 2, y3 );
+    ctx.lineTo( x1, y3 );
+    ctx.quadraticCurveTo( x0, y3, x0, y2 );
+    ctx.lineTo( x0, y1 );
+    ctx.quadraticCurveTo( x0, y0, x1, y0 );
+    ctx.lineTo( x2, y0 );
+    ctx.quadraticCurveTo( x3, y0, x3, y1 );
+    ctx.lineTo( x3, y2 );
+    ctx.quadraticCurveTo( x3, y3, x2, y3 );
+    ctx.lineTo( cvs.width / 2 + leg_width / 2, cvs.height - leg_height );
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(80,100,120,0.75)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgb(255,255,255)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // label
+    ctx.fillStyle = 'rgba(255,255,255,1)';
+    ctx.textBaseline = 'top';
+    ctx.font = font;  // set font again since it's cleared at change canvas size
+    ctx.fillText(label, padding, padding);
+
+    var res = cvs.toDataURL('image/png');
+    return res;
+  };
+
   var latlng = new google.maps.LatLng(35.709984,139.810703);
   var opts = {
     zoom: 15,
@@ -104,7 +159,9 @@ $(function() {
     init: function (opts) {
       this.$el = $('<li class="user" />');
       this.$el.appendTo('#users');
-      this.marker = new google.maps.Marker({});
+      this.marker = new google.maps.Marker({
+        icon: generateMarkerIcon({ label: opts.name })
+      });
       this.marker.setMap(Map);
       this.update(opts);
     }
@@ -113,9 +170,11 @@ $(function() {
       if ( this.lat !== opts.lat || this.lng !== opts.lng ) {
         shouldUpdateLatLng = true;
       }
+      if ( opts.name && this.name !== opts.name ) {
+          this.marker.setIcon(generateMarkerIcon({label: opts.name}));
+      }
       $.extend(this, opts);
       if ( shouldUpdateLatLng ) this.updateLatLng();
-      this.marker.setTitle(this.name);
       this.render();
     }
     , updateLatLng: function () {
@@ -213,7 +272,7 @@ $(function() {
         for ( var i=0; i<msg.logs.length; i++ ) {
             handleMessage( msg.logs[i] );
         }
-        setInterval( function () {
+        var reportGeoLocation = function () {
           navigator.geolocation.getCurrentPosition(function (e) {
             chat.me.lat = e.coords.latitude;
             chat.me.lng = e.coords.longitude;
@@ -221,7 +280,9 @@ $(function() {
           }, function () {
 
           });
-        }, 10000);
+        };
+        reportGeoLocation();
+        setInterval( reportGeoLocation, 10000 );
       });
 
       socket.on('join', function (msg) {
