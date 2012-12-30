@@ -147,8 +147,8 @@ $(function() {
   };
 
   var UserCollection = {
-    users: {}
-    , init: function (users) {
+    init: function (users) {
+      this.users = {};
       for ( uid in users ) {
         this.users[uid] = new User( users[uid] );
       }
@@ -208,6 +208,7 @@ $(function() {
         msg.users[ msg.you.id ].me = true;
         chat.me = msg.you;
         $('#name').val(msg.you.name);
+        $('#users').empty();
         chat.users.init(msg.users);
         for ( var i=0; i<msg.logs.length; i++ ) {
             handleMessage( msg.logs[i] );
