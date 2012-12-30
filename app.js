@@ -75,6 +75,24 @@ var createRoomId = function () {
 
 //socket.io
 var io = require('socket.io').listen(conf.ioport);
+
+io.configure('production', function(){
+  io.enable('browser client etag');
+  io.set('log level', 1);
+
+  io.set('transports', [
+    'websocket'
+  , 'flashsocket'
+  , 'htmlfile'
+  , 'xhr-polling'
+  , 'jsonp-polling'
+  ]);
+});
+
+io.configure('development', function(){
+  io.set('transports', ['websocket']);
+});
+
 var cookieParser = require('cookie');
 var channel = io.on('connection', function (socket) {
   var roomid = socket.handshake.query.roomid;
@@ -91,6 +109,7 @@ var channel = io.on('connection', function (socket) {
     var cookie = cookieParser.parse(cookie_str);
     if ( cookie.name ) name = cookie.name;
   }
+  console.log(new Date(), 'connected: ', name, socket.id);
   var user = { id: uid, name: name, lat: 0.0, lng: 0.0 };
   var room = ROOMS[roomid];
   if ( !room ) {
@@ -126,6 +145,7 @@ var channel = io.on('connection', function (socket) {
 
   socket.on('disconnect', function() {
     delete users[uid];
+    console.log(new Date(), 'disconnected ', user.name, socket.id);
     socket.leave(roomid);
     socket.broadcast.to(roomid).emit('leave', { user: user });
     var c = 0;
